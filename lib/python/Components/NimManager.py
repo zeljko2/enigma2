@@ -522,8 +522,6 @@ class NIM(object):
 	def isCompatible(self, what):
 		if self.isFullMultiType():
 			return self.canBeCompatible(what)
-		if self.isMultiType():
-			return self.isSupported() and what in set([y for x in [slot.compatible[slot.getMultiTypeList()[x]] for x in nim.multiType.value] for y in x])
 		else:
 			return self.isSupported() and what in self.compatible[self.getType()]
 
@@ -534,8 +532,8 @@ class NIM(object):
 		try:
 			if self.isFullMultiType():
 				return "DVB-S2X" #return dvb-s2x when we have full multitype as this enables all DVB-S2X features
-			else:
-				return self.multi_type.get(self.config.multiType.value, None) #multiType value 'nothing' -> 'n' does not exist means tuner disabled
+			elif self.isMultiType():
+				return self.multi_type.get(self.config.multiType.value, None)
 		except:
 			pass
 		return self.type
@@ -582,7 +580,7 @@ class NIM(object):
 			open("/proc/stb/frontend/%d/rf_switch" % self.frontend_id, "w").write("external")
 
 	def isMultiType(self):
-		return not self.isFullMultiType and bool(len(self.multi_type))
+		return not self.isFullMultiType() and bool(len(self.multi_type))
 
 	def isFullMultiType(self):
 		return slot.canBeCompatible("DVB-S") and (slot.canBeCompatible("DVB-C") or slot.canBeCompatible("DVB-T"))
