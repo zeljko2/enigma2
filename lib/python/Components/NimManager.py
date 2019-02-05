@@ -1625,11 +1625,7 @@ def InitNimManager(nimmgr, update_slots = []):
 			empty_slots += 1
 
 		if slot.isMultiType() and not hasattr(nim, "multiType"):
-			typeList = []
-			for id in sorted(slot.getMultiTypeList().key()):
-				typeList.append((id, slot.getMultiTypeList()[id]))
-			typeList.append(("", "disabled"))
-			nim.multiType = ConfigSelection(typeList, "0")
+			nim.multiType = ConfigSelection([(id, slot.getMultiTypeList()[id]) for id in slot.getMultiTypeList().keys()] + [("", "disabled"))], "0")
 			nim.multiType.addNotifier(boundFunction(tunerTypeChanged, nimmgr, x - empty_slots), initial_call=True)
 
 nimmanager = NimManager()
