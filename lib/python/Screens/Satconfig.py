@@ -510,10 +510,10 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 					self.showAdditionalMotorOptions = getConfigListEntry(self.indent % _("Extra motor options"), self.additionalMotorOptions, _("Additional motor options allow you to enter details from your motor's spec sheet so enigma can work out how long it will take to move to another satellite."))
 					self.list.append(self.showAdditionalMotorOptions)
 					if self.additionalMotorOptions.value:
-						self.list.append(getConfigListEntry("   " + _("Horizontal turning speed") + " [" + chr(176) + "/sec]", currLnb.turningspeedH, _("Consult your motor's spec sheet for this information, or leave the default setting.")))
-						self.list.append(getConfigListEntry("   " + _("Vertical turning speed") + " [" + chr(176) + "/sec]", currLnb.turningspeedV, _("Consult your motor's spec sheet for this information, or leave the default setting.")))
-						self.list.append(getConfigListEntry("   " + _("Turning step size") + " [" + chr(176) + "]", currLnb.tuningstepsize, _("Consult your motor's spec sheet for this information, or leave the default setting.")))
-						self.list.append(getConfigListEntry("   " + _("Max memory positions"), currLnb.rotorPositions, _("Consult your motor's spec sheet for this information, or leave the default setting.")))
+						self.list.append(getConfigListEntry(self.indent % ("  %s" % _("Horizontal turning speed")) + " [" + chr(176) + "/sec]", currLnb.turningspeedH, _("Consult your motor's spec sheet for this information, or leave the default setting.")))
+						self.list.append(getConfigListEntry(self.indent % ("  %s" % _("Vertical turning speed")) + " [" + chr(176) + "/sec]", currLnb.turningspeedV, _("Consult your motor's spec sheet for this information, or leave the default setting.")))
+						self.list.append(getConfigListEntry(self.indent % ("  %s" % _("Turning step size")) + " [" + chr(176) + "]", currLnb.tuningstepsize, _("Consult your motor's spec sheet for this information, or leave the default setting.")))
+						self.list.append(getConfigListEntry(self.indent % ("  %s" % _("Max memory positions")), currLnb.rotorPositions, _("Consult your motor's spec sheet for this information, or leave the default setting.")))
 
 	def fillAdvancedList(self):
 		self.list = [ ]
@@ -850,7 +850,9 @@ class NimSelection(Screen):
 					elif nimConfig.configMode.value == "enabled":
 						text = _("Enabled")
 				if x.isMultiType():
-					text = _("Switchable tuner types:") + " (" + ','.join(x.getMultiTypeList().values()) + ")" + "\n" + text
+					text = "%s (%s)\n%s" % (_("Switchable tuner types:"), ','.join(x.getMultiTypeList().values()), text)
+				elif  x.isFullMultiType():
+					text = "%s (%s)\n%s" % (_("Multitype tuner"), ','.join(x.getMultiTypeList().values()), text)
 				if not x.isSupported():
 					text = _("Tuner is not supported")
 
