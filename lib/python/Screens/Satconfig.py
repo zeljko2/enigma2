@@ -793,10 +793,8 @@ class NimSelection(Screen):
 						if x.isFBCLink():
 							text = _("FBC automatic\nconnected to")
 						else:
-							text = { "loopthrough": _("Loop through from"),
-									"equal": _("Equal to"),
-									"satposdepends": _("Second cable of motorized LNB") } [nimConfig.configMode.value]
-						text += " " + nimmanager.getNim(int(nimConfig.connectedTo.value)).slot_name
+							text = "%s %s" % ({ "loopthrough": _("Loop through from"), "equal": _("Equal to"), "satposdepends": _("Second cable of motorized LNB")} [nimConfig.configMode.value],
+								nimmanager.getNim(int(nimConfig.connectedTo.value)).slot_name)
 					elif nimConfig.configMode.value == "nothing":
 						if x.isFBCLink():
 							link = getLinkedSlotID(x.slot)
@@ -809,8 +807,8 @@ class NimSelection(Screen):
 							text = _("not configured")
 					elif nimConfig.configMode.value == "simple":
 						if nimConfig.diseqcMode.value in ("single", "toneburst_a_b", "diseqc_a_b", "diseqc_a_b_c_d"):
-							text = {"single": _("Single"), "toneburst_a_b": _("Toneburst A/B"), "diseqc_a_b": _("DiSEqC A/B"), "diseqc_a_b_c_d": _("DiSEqC A/B/C/D")}[nimConfig.diseqcMode.value] + "\n"
-							text += _("Sats") + ": "
+							text = "%s\n%s: " % ({"single": _("Single"), "toneburst_a_b": _("Toneburst A/B"), "diseqc_a_b": _("DiSEqC A/B"), "diseqc_a_b_c_d": _("DiSEqC A/B/C/D")}[nimConfig.diseqcMode.value],
+								_("Sats"))
 							satnames = []
 							if nimConfig.diseqcA.orbital_position < 3600:
 								satnames.append(nimmanager.getSatName(int(nimConfig.diseqcA.value)))
@@ -826,11 +824,9 @@ class NimSelection(Screen):
 								text += ", ".join(satnames)
 							elif len(satnames) > 2:
 								# we need a newline here, since multi content lists don't support automtic line wrapping
-								text += ", ".join(satnames[:2]) + ",\n"
-								text += "         " + ", ".join(satnames[2:])
+								text += "%s,\n         %s" % (".join(satnames[:2]) + ", ", ".join(satnames[2:]))
 						elif nimConfig.diseqcMode.value in ("positioner", "positioner_select"):
-							text = {"positioner": _("Positioner"), "positioner_select": _("Positioner (selecting satellites)")}[nimConfig.diseqcMode.value]
-							text += ": "
+							text = "%s: " % {"positioner": _("Positioner"), "positioner_select": _("Positioner (selecting satellites)")}[nimConfig.diseqcMode.value]
 							if nimConfig.positionerMode.value == "usals":
 								text += "USALS"
 							elif nimConfig.positionerMode.value == "manual":
@@ -838,8 +834,7 @@ class NimSelection(Screen):
 						else:
 							text = _("Simple")
 					elif nimConfig.configMode.value == "advanced":
-						text = _("Advanced") + "\n"
-						text += _("Sats") + ": "
+						text = "%s\n%s: " % (_("Advanced"), _("Sats"))
 						satnames = []
 						for sat in nimmanager.getSatListForNim(slotid):
 							satnames.append(self.OrbToStr(int(sat[0])))
