@@ -1560,12 +1560,10 @@ def InitNimManager(nimmgr, update_slots = []):
 		nim = config.Nims[x]
 		nim.force_legacy_signal_stats = ConfigYesNo(default = False)
 
-		choices = {	"enabled": _("enabled"), "nothing": _("disabled") }
-
 		if slot.isCompatible("DVB-S"):
 			createSatConfig(nim, x, empty_slots)
 			nim.configModeDVBS = ConfigYesNo()
-			config_mode_choices = ([("nothing", _("disabled"))] if not slot.isMultiType() else []) + [("simple", _("simple")), ("advanced", _("advanced"))]
+			config_mode_choices = ([("nothing", _("disabled"))] if not len(slot.multi_type) else []) + [("simple", _("simple")), ("advanced", _("advanced"))]
 			if len(nimmgr.getNimListOfType(slot.type, exception = x)) > 0:
 				config_mode_choices.append(("equal", _("equal to")))
 				config_mode_choices.append(("satposdepends", _("second cable of motorized LNB")))
@@ -1579,17 +1577,17 @@ def InitNimManager(nimmgr, update_slots = []):
 		elif slot.isCompatible("DVB-C"):
 			nim.configModeDVBC = ConfigYesNo()
 			if not slot.isFullMultiType():
-				nim.configMode = ConfigSelection(choices=choices, default="nothing")
+				nim.configMode = ConfigSelection(choices={"enabled": _("enabled"), "nothing": _("disabled")}, default="nothing")
 			createCableConfig(nim, x)
 		elif slot.isCompatible("DVB-T"):
 			nim.configModeDVBT = ConfigYesNo()
 			if not slot.isFullMultiType():
-				nim.configMode = ConfigSelection(choices=choices, default="nothing")
+				nim.configMode = ConfigSelection(choices={"enabled": _("enabled"), "nothing": _("disabled")}, default="nothing")
 			createTerrestrialConfig(nim, x)
 		elif slot.isCompatible("ATSC"):
 			nim.configModeDVBATSC = ConfigYesNo()
 			if not slot.isFullMultiType():
-				nim.configMode = ConfigSelection(choices=choices, default="nothing")
+				nim.configMode = ConfigSelection(choices={"enabled": _("enabled"), "nothing": _("disabled")}, default="nothing")
 			createATSCConfig(nim, x)
 		else:
 			empty_slots += 1
