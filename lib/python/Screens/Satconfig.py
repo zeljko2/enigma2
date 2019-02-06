@@ -72,10 +72,10 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 		self.showAdditionalMotorOptions = getConfigListEntry(self.indent % _("Extra motor options"), self.additionalMotorOptions, _("Additional motor options allow you to enter details from your motor's spec sheet so enigma can work out how long it will take to move the dish from one satellite to another satellite."))
 		self.list.append(self.showAdditionalMotorOptions)
 		if self.additionalMotorOptions.value:
-			self.list.append(getConfigListEntry("   " + _("Horizontal turning speed") + " [" + chr(176) + "/sec]", nim.turningspeedH, _("Consult your motor's spec sheet for this information, or leave the default setting.")))
-			self.list.append(getConfigListEntry("   " + _("Vertical turning speed") + " [" + chr(176) + "/sec]", nim.turningspeedV, _("Consult your motor's spec sheet for this information, or leave the default setting.")))
-			self.list.append(getConfigListEntry("   " + _("Turning step size") + " [" + chr(176) + "]", nim.tuningstepsize, _("Consult your motor's spec sheet for this information, or leave the default setting.")))
-			self.list.append(getConfigListEntry("   " + _("Max memory positions"), nim.rotorPositions, _("Consult your motor's spec sheet for this information, or leave the default setting.")))
+			self.list.append(getConfigListEntry(self.indent % ("   %s [%s/sec]" % (_("Horizontal turning speed"), chr(176))), nim.turningspeedH, _("Consult your motor's spec sheet for this information, or leave the default setting.")))
+			self.list.append(getConfigListEntry(self.indent % ("   %s [%s/sec]" % (_("Vertical turning speed"), chr(176)))", nim.turningspeedV, _("Consult your motor's spec sheet for this information, or leave the default setting.")))
+			self.list.append(getConfigListEntry(self.indent % ("   %s [%s]" % (_("Turning step size"), chr(176))), nim.tuningstepsize, _("Consult your motor's spec sheet for this information, or leave the default setting.")))
+			self.list.append(getConfigListEntry(self.indent % ("   %s" % _("Max memory positions")), nim.rotorPositions, _("Consult your motor's spec sheet for this information, or leave the default setting.")))
 
 	def createConfigMode(self):
 		if self.nim.isCompatible("DVB-S"):
@@ -152,7 +152,7 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 				self.configMode = getConfigListEntry(self.indent % _("Configuration mode"), self.nimConfig.configMode, _("Select 'FBC SCR' if this tuner will connect to a SCR (Unicable/JESS) device. For all other setups select 'FBC automatic'.") if self.nim.isFBCLink() else _("Configure this tuner using simple or advanced options, or loop it through to another tuner, or copy a configuration from another tuner, or disable it."))
 				self.list.append(self.configMode)
 				if self.nimConfig.configMode.value == "simple":			#simple setup
-					self.diseqcModeEntry = getConfigListEntry(pgettext("Satellite configuration mode", "Mode"), self.nimConfig.diseqcMode, _("Select how the satellite dish is set up. i.e. fixed dish, single LNB, DiSEqC switch, positioner, etc."))
+					self.diseqcModeEntry = getConfigListEntry(self.indent % pgettext("Satellite configuration mode", "Mode"), self.nimConfig.diseqcMode, _("Select how the satellite dish is set up. i.e. fixed dish, single LNB, DiSEqC switch, positioner, etc."))
 					self.list.append(self.diseqcModeEntry)
 					if self.nimConfig.diseqcMode.value in ("single", "toneburst_a_b", "diseqc_a_b", "diseqc_a_b_c_d"):
 						self.createSimpleSetup(self.list, self.nimConfig.diseqcMode.value)
@@ -250,30 +250,30 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 					if self.nimConfig.cable.config_scan_details.value:
 						if self.nimConfig.cable.scan_type.value == "bands":
 							# TRANSLATORS: option name, indicating which type of (DVB-C) band should be scanned. The name of the band is printed in '%s'. E.g.: 'Scan EU MID band'
-							self.list.append(getConfigListEntry(self.indent % _("Scan %s band") % ("EU VHF I"), self.nimConfig.cable.scan_band_EU_VHF_I, _("Select 'yes' to include the %s band in your search.") % ("EU VHF I")))
-							self.list.append(getConfigListEntry(self.indent % _("Scan %s band") % ("EU MID"), self.nimConfig.cable.scan_band_EU_MID, _("Select 'yes' to include the %s band in your search.") % ("EU MID")))
-							self.list.append(getConfigListEntry(self.indent % _("Scan %s band") % ("EU VHF III"), self.nimConfig.cable.scan_band_EU_VHF_III, _("Select 'yes' to include the %s band in your search.") % ("EU VHF III")))
-							self.list.append(getConfigListEntry(self.indent % _("Scan %s band") % ("EU UHF IV"), self.nimConfig.cable.scan_band_EU_UHF_IV, _("Select 'yes' to include the %s band in your search.") % ("EU VHF IV")))
-							self.list.append(getConfigListEntry(self.indent % _("Scan %s band") % ("EU UHF V"), self.nimConfig.cable.scan_band_EU_UHF_V, _("Select 'yes' to include the %s band in your search.") % ("EU VHF V")))
-							self.list.append(getConfigListEntry(self.indent % _("Scan %s band") % ("EU SUPER"), self.nimConfig.cable.scan_band_EU_SUPER, _("Select 'yes' to include the %s band in your search.") % ("EU SUPER")))
-							self.list.append(getConfigListEntry(self.indent % _("Scan %s band") % ("EU HYPER"), self.nimConfig.cable.scan_band_EU_HYPER, _("Select 'yes' to include the %s band in your search.") % ("EU HYPER")))
-							self.list.append(getConfigListEntry(self.indent % _("Scan %s band") % ("US LOW"), self.nimConfig.cable.scan_band_US_LOW, _("Select 'yes' to include the %s band in your search.") % ("US LOW")))
-							self.list.append(getConfigListEntry(self.indent % _("Scan %s band") % ("US MID"), self.nimConfig.cable.scan_band_US_MID, _("Select 'yes' to include the %s band in your search.") % ("US MID")))
-							self.list.append(getConfigListEntry(self.indent % _("Scan %s band") % ("US HIGH"), self.nimConfig.cable.scan_band_US_HIGH, _("Select 'yes' to include the %s band in your search.") % ("US HIGH")))
-							self.list.append(getConfigListEntry(self.indent % _("Scan %s band") % ("US SUPER"), self.nimConfig.cable.scan_band_US_SUPER, _("Select 'yes' to include the %s band in your search.") % ("US SUPER")))
-							self.list.append(getConfigListEntry(self.indent % _("Scan %s band") % ("US HYPER"), self.nimConfig.cable.scan_band_US_HYPER, _("Select 'yes' to include the %s band in your search.") % ("US HYPER")))
+							self.list.append(getConfigListEntry(self.indent % (_("Scan %s band") % ("EU VHF I")), self.nimConfig.cable.scan_band_EU_VHF_I, _("Select 'yes' to include the %s band in your search.") % ("EU VHF I")))
+							self.list.append(getConfigListEntry(self.indent % (_("Scan %s band") % ("EU MID")), self.nimConfig.cable.scan_band_EU_MID, _("Select 'yes' to include the %s band in your search.") % ("EU MID")))
+							self.list.append(getConfigListEntry(self.indent % (_("Scan %s band") % ("EU VHF III")), self.nimConfig.cable.scan_band_EU_VHF_III, _("Select 'yes' to include the %s band in your search.") % ("EU VHF III")))
+							self.list.append(getConfigListEntry(self.indent % (_("Scan %s band") % ("EU UHF IV")), self.nimConfig.cable.scan_band_EU_UHF_IV, _("Select 'yes' to include the %s band in your search.") % ("EU VHF IV")))
+							self.list.append(getConfigListEntry(self.indent % (_("Scan %s band") % ("EU UHF V")), self.nimConfig.cable.scan_band_EU_UHF_V, _("Select 'yes' to include the %s band in your search.") % ("EU VHF V")))
+							self.list.append(getConfigListEntry(self.indent % (_("Scan %s band") % ("EU SUPER")), self.nimConfig.cable.scan_band_EU_SUPER, _("Select 'yes' to include the %s band in your search.") % ("EU SUPER")))
+							self.list.append(getConfigListEntry(self.indent % (_("Scan %s band") % ("EU HYPER")), self.nimConfig.cable.scan_band_EU_HYPER, _("Select 'yes' to include the %s band in your search.") % ("EU HYPER")))
+							self.list.append(getConfigListEntry(self.indent % (_("Scan %s band") % ("US LOW")), self.nimConfig.cable.scan_band_US_LOW, _("Select 'yes' to include the %s band in your search.") % ("US LOW")))
+							self.list.append(getConfigListEntry(self.indent % (_("Scan %s band") % ("US MID")), self.nimConfig.cable.scan_band_US_MID, _("Select 'yes' to include the %s band in your search.") % ("US MID")))
+							self.list.append(getConfigListEntry(self.indent % (_("Scan %s band") % ("US HIGH")), self.nimConfig.cable.scan_band_US_HIGH, _("Select 'yes' to include the %s band in your search.") % ("US HIGH")))
+							self.list.append(getConfigListEntry(self.indent % (_("Scan %s band") % ("US SUPER")), self.nimConfig.cable.scan_band_US_SUPER, _("Select 'yes' to include the %s band in your search.") % ("US SUPER")))
+							self.list.append(getConfigListEntry(self.indent % (_("Scan %s band") % ("US HYPER")), self.nimConfig.cable.scan_band_US_HYPER, _("Select 'yes' to include the %s band in your search.") % ("US HYPER")))
 						else:
 							self.list.append(getConfigListEntry(self.indent % _("Frequency scan step size(khz)"), self.nimConfig.cable.scan_frequency_steps, _("Enter the frequency step size for the tuner to use when searching for cable multiplexes. For more information consult your cable provider's documentation.")))
 						# TRANSLATORS: option name, indicating which type of (DVB-C) modulation should be scanned. The modulation type is printed in '%s'. E.g.: 'Scan QAM16'
-						self.list.append(getConfigListEntry(self.indent % _("Scan %s") % ("QAM16"), self.nimConfig.cable.scan_mod_qam16, _("Select 'yes' to include %s multiplexes in your search.") % ("QAM16")))
-						self.list.append(getConfigListEntry(self.indent % _("Scan %s") % ("QAM32"), self.nimConfig.cable.scan_mod_qam32, _("Select 'yes' to include %s multiplexes in your search.") % ("QAM32")))
-						self.list.append(getConfigListEntry(self.indent % _("Scan %s") % ("QAM64"), self.nimConfig.cable.scan_mod_qam64, _("Select 'yes' to include %s multiplexes in your search.") % ("QAM64")))
-						self.list.append(getConfigListEntry(self.indent % _("Scan %s") % ("QAM128"), self.nimConfig.cable.scan_mod_qam128, _("Select 'yes' to include %s multiplexes in your search.") % ("QAM128")))
-						self.list.append(getConfigListEntry(self.indent % _("Scan %s") % ("QAM256"), self.nimConfig.cable.scan_mod_qam256, _("Select 'yes' to include %s multiplexes in your search.") % ("QAM256")))
-						self.list.append(getConfigListEntry(self.indent % _("Scan %s") % ("SR6900"), self.nimConfig.cable.scan_sr_6900, _("Select 'yes' to include symbol rate %s in your search.") % ("6900")))
-						self.list.append(getConfigListEntry(self.indent % _("Scan %s") % ("SR6875"), self.nimConfig.cable.scan_sr_6875, _("Select 'yes' to include symbol rate %s in your search.") % ("6875")))
-						self.list.append(getConfigListEntry(self.indent % _("Scan additional SR"), self.nimConfig.cable.scan_sr_ext1, _("This field allows you to search an additional symbol rate up to %s.") % ("7320")))
-						self.list.append(getConfigListEntry(self.indent % _("Scan additional SR"), self.nimConfig.cable.scan_sr_ext2, _("This field allows you to search an additional symbol rate up to %s.") % ("7320")))
+						self.list.append(getConfigListEntry(self.indent % (_("Scan %s") % ("QAM16")), self.nimConfig.cable.scan_mod_qam16, _("Select 'yes' to include %s multiplexes in your search.") % ("QAM16")))
+						self.list.append(getConfigListEntry(self.indent % (_("Scan %s") % ("QAM32")), self.nimConfig.cable.scan_mod_qam32, _("Select 'yes' to include %s multiplexes in your search.") % ("QAM32")))
+						self.list.append(getConfigListEntry(self.indent % (_("Scan %s") % ("QAM64")), self.nimConfig.cable.scan_mod_qam64, _("Select 'yes' to include %s multiplexes in your search.") % ("QAM64")))
+						self.list.append(getConfigListEntry(self.indent % (_("Scan %s") % ("QAM128")), self.nimConfig.cable.scan_mod_qam128, _("Select 'yes' to include %s multiplexes in your search.") % ("QAM128")))
+						self.list.append(getConfigListEntry(self.indent % (_("Scan %s") % ("QAM256")), self.nimConfig.cable.scan_mod_qam256, _("Select 'yes' to include %s multiplexes in your search.") % ("QAM256")))
+						self.list.append(getConfigListEntry(self.indent % (_("Scan %s") % ("SR6900")), self.nimConfig.cable.scan_sr_6900, _("Select 'yes' to include symbol rate %s in your search.") % ("6900")))
+						self.list.append(getConfigListEntry(self.indent % (_("Scan %s") % ("SR6875")), self.nimConfig.cable.scan_sr_6875, _("Select 'yes' to include symbol rate %s in your search.") % ("6875")))
+						self.list.append(getConfigListEntry(self.indent % (_("Scan additional SR")), self.nimConfig.cable.scan_sr_ext1, _("This field allows you to search an additional symbol rate up to %s.") % ("7320")))
+						self.list.append(getConfigListEntry(self.indent % (_("Scan additional SR")), self.nimConfig.cable.scan_sr_ext2, _("This field allows you to search an additional symbol rate up to %s.") % ("7320")))
 		elif self.nim.isCompatible("DVB-T"):
 			if self.nim.isFullMultiType():
 				self.configModeDVBT = getConfigListEntry(_("Configure DVB-T"), self.nimConfig.configModeDVBT, _("Select 'Yes' when you want to configure this tuner for DVB-T"))
@@ -405,7 +405,7 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 				self.list.append(getConfigListEntry(self.indent % _("Threshold"), currLnb.threshold, _("Enter the frequency at which you LNB switches between low band and high band. For more information consult the spec sheet of your LNB.")))
 
 			if currLnb.lof.value == "unicable":
-				self.advancedUnicable = getConfigListEntry(self.indent % "SCR (Unicable/JESS) "+_("type"), currLnb.unicable, _("Select the type of Single Cable Reception device you are using."))
+				self.advancedUnicable = getConfigListEntry(self.indent % ("%s%s" % ("SCR (Unicable/JESS) ", _("type"))), currLnb.unicable, _("Select the type of Single Cable Reception device you are using."))
 				self.list.append(self.advancedUnicable)
 				if currLnb.unicable.value == "unicable_user":
 					self.advancedFormat = getConfigListEntry(self.indent % _("Format"), currLnb.format, _("Select the protocol used by your SCR device. Choices are 'SCR Unicable' (Unicable), or 'SCR JESS' (JESS, also known as Unicable II)."))
@@ -440,7 +440,7 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 					self.list.append(self.advancedConnected)
 					if self.nimConfig.advanced.unicableconnected.value == True:
 						self.nimConfig.advanced.unicableconnectedTo.setChoices(choices)
-						self.list.append(getConfigListEntry(self.indent % _("Connected to"),self.nimConfig.advanced.unicableconnectedTo, _("Select the tuner to which the signal cable of the SCR device is connected.")))
+						self.list.append(getConfigListEntry(self.indent % _("Connected to"), self.nimConfig.advanced.unicableconnectedTo, _("Select the tuner to which the signal cable of the SCR device is connected.")))
 
 			else:	#kein Unicable
 				self.list.append(getConfigListEntry(self.indent % _("Voltage mode"), Sat.voltage, _("Select 'polarisation' if using a 'universal' LNB, otherwise consult your LNB spec sheet.")))
