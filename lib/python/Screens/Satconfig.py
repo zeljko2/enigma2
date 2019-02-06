@@ -73,7 +73,7 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 		self.list.append(self.showAdditionalMotorOptions)
 		if self.additionalMotorOptions.value:
 			self.list.append(getConfigListEntry(self.indent % ("   %s [%s/sec]" % (_("Horizontal turning speed"), chr(176))), nim.turningspeedH, _("Consult your motor's spec sheet for this information, or leave the default setting.")))
-			self.list.append(getConfigListEntry(self.indent % ("   %s [%s/sec]" % (_("Vertical turning speed"), chr(176)))", nim.turningspeedV, _("Consult your motor's spec sheet for this information, or leave the default setting.")))
+			self.list.append(getConfigListEntry(self.indent % ("   %s [%s/sec]" % (_("Vertical turning speed"), chr(176))), nim.turningspeedV, _("Consult your motor's spec sheet for this information, or leave the default setting.")))
 			self.list.append(getConfigListEntry(self.indent % ("   %s [%s]" % (_("Turning step size"), chr(176))), nim.tuningstepsize, _("Consult your motor's spec sheet for this information, or leave the default setting.")))
 			self.list.append(getConfigListEntry(self.indent % ("   %s" % _("Max memory positions")), nim.rotorPositions, _("Consult your motor's spec sheet for this information, or leave the default setting.")))
 
