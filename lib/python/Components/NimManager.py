@@ -526,7 +526,7 @@ class NIM(object):
 			return self.isSupported() and what in self.compatible[self.getType()]
 
 	def canBeCompatible(self, what):
-		return self.isSupported() and (self.isCompatible(what) or [x for x in self.multi_type.values() if what in self.compatible[x]]) and True
+		return self.isSupported() and bool([x for x in self.multi_type.values() if what in self.compatible[x]])
 
 	def getType(self):
 		try:
@@ -583,7 +583,8 @@ class NIM(object):
 		return not self.isFullMultiType() and bool(len(self.multi_type))
 
 	def isFullMultiType(self):
-		return slot.canBeCompatible("DVB-S") and (slot.canBeCompatible("DVB-C") or slot.canBeCompatible("DVB-T"))
+		all_tuner_capabilities =  set([y for x in [self.compatible[x] for x in self.multi_type.values()] for y in x])
+		return "DVB-S" in all_tuner_capabilities and ("DVB-C" in all_tuner_capabilities or "DVB-T" in all_tuner_capabilities)
 
 	def isEmpty(self):
 		return self.__is_empty
@@ -621,7 +622,7 @@ class NIM(object):
 		return self.isFBCTuner() and self.slot % 8 and True
 
 	def getFriendlyType(self):
-		return (" + ".join(slot.multiTypeList.values()) if self.isFullMultiType() else self.getType()) or _("empty")
+		return (" + ".join(self.multi_type.values()) if self.isFullMultiType() else self.getType()) or _("empty")
 
 	def getFullDescription(self):
 		return self.empty and _("(empty)") or "%s (%s)" % (self.description, self.isSupported() and self.friendly_type or _("not supported"))
@@ -1549,6 +1550,7 @@ def InitNimManager(nimmgr, update_slots = []):
 			if "nothing" not in config.Nims[fe_id].configMode.choices.choices.keys():
 				config.Nims[fe_id].configMode.choices.choices.update({"nothing": _("disabled")})
 			config.Nims[fe_id].configMode.value = "nothing"
+			q=q
 
 	empty_slots = 0
 	for slot in nimmgr.nim_slots:
@@ -1562,8 +1564,7 @@ def InitNimManager(nimmgr, update_slots = []):
 
 		if slot.isCompatible("DVB-S"):
 			createSatConfig(nim, x, empty_slots)
-			nim.configModeDVBS = ConfigYesNo()
-			config_mode_choices = ([("nothing", _("disabled"))] if not len(slot.multi_type) else []) + [("simple", _("simple")), ("advanced", _("advanced"))]
+			config_mode_choices = ([("nothing", _("disabled"))] if not slot.isMultiType() else []) + [("simple", _("simple")), ("advanced", _("advanced"))]
 			if len(nimmgr.getNimListOfType(slot.type, exception = x)) > 0:
 				config_mode_choices.append(("equal", _("equal to")))
 				config_mode_choices.append(("satposdepends", _("second cable of motorized LNB")))
@@ -1574,17 +1575,17 @@ def InitNimManager(nimmgr, update_slots = []):
 			tmp.slot_id = x
 			tmp.addNotifier(configModeChanged, initial_call = False)
 			nim.configMode = tmp
-		elif slot.isCompatible("DVB-C"):
+		if slot.isCompatible("DVB-C"):
 			nim.configModeDVBC = ConfigYesNo()
 			if not slot.isFullMultiType():
 				nim.configMode = ConfigSelection(choices={"enabled": _("enabled"), "nothing": _("disabled")}, default="nothing")
 			createCableConfig(nim, x)
-		elif slot.isCompatible("DVB-T"):
+		if slot.isCompatible("DVB-T"):
 			nim.configModeDVBT = ConfigYesNo()
 			if not slot.isFullMultiType():
 				nim.configMode = ConfigSelection(choices={"enabled": _("enabled"), "nothing": _("disabled")}, default="nothing")
 			createTerrestrialConfig(nim, x)
-		elif slot.isCompatible("ATSC"):
+		if slot.isCompatible("ATSC"):
 			nim.configModeDVBATSC = ConfigYesNo()
 			if not slot.isFullMultiType():
 				nim.configMode = ConfigSelection(choices={"enabled": _("enabled"), "nothing": _("disabled")}, default="nothing")
@@ -1594,7 +1595,6 @@ def InitNimManager(nimmgr, update_slots = []):
 			nim.configMode = ConfigSelection(choices = { "nothing": _("disabled") }, default="nothing")
 			if slot.type is not None:
 				print "[InitNimManager] pls add support for this frontend type!", slot.type
-
 	nimmgr.sec = SecConfigure(nimmgr)
 
 	empty_slots = 0
