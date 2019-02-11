@@ -622,7 +622,7 @@ class NIM(object):
 		return self.isFBCTuner() and self.slot % 8 and True
 
 	def getFriendlyType(self):
-		return (" + ".join(self.multi_type.values()) if self.isHotSwitchableMultiType() else self.getType()) or _("empty")
+		return ("%s%s" % (_("Hotswitchable"), " + ".join(self.multi_type.values())) if self.isHotSwitchableMultiType() else self.getType()) or _("empty")
 
 	def getFullDescription(self):
 		return self.empty and _("(empty)") or "%s (%s)" % (self.description, self.isSupported() and self.friendly_type or _("not supported"))
