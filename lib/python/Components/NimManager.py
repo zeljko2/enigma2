@@ -1551,14 +1551,12 @@ def InitNimManager(nimmgr, update_slots = []):
 				config.Nims[fe_id].configMode.choices.choices.update({"nothing": _("disabled")})
 			config.Nims[fe_id].configMode.value = "nothing"
 
-	def tunerConfigChanged(nim, configElement):
-		if nim.configModeDVBS.value or nim.configModeDVBC.value of nim.configModeDVBT.value or nim.configModeDVBATSC.value:
-			if nim.configMode = "nothing":
-				nim.configMode = "simple"
+	def tunerConfigChanged(nim, configElement=None):
+		if nim.configModeDVBS.value or nim.configModeDVBC.value or nim.configModeDVBT.value or nim.configModeDVBATSC.value:
+			if nim.configMode.value == "nothing":
+				nim.configMode.value = "simple"
 		else:
-			if "nothing" not in nim.configMode.choices.choices.keys():
-				nim.configMode.choices.choices.update({"nothing": _("disabled")})
-			nim.configMode.value = "nothing"
+			nim.configMode.value = nim.configMode.default = "nothing"
 
 	empty_slots = 0
 	for slot in nimmgr.nim_slots:
@@ -1572,7 +1570,7 @@ def InitNimManager(nimmgr, update_slots = []):
 
 		if slot.isCompatible("DVB-S"):
 			createSatConfig(nim, x, empty_slots)
-			config_mode_choices = {"nothing": _("disabled"), "simple": _("simple"), "advanced", _("advanced")}
+			config_mode_choices = {"nothing": _("disabled"), "simple": _("simple"), "advanced": _("advanced")}
 			if len(nimmgr.getNimListOfType(slot.type, exception = x)) > 0:
 				config_mode_choices.update({"equal": _("equal to")})
 				config_mode_choices.update({"satposdepends": _("second cable of motorized LNB")})
@@ -1585,25 +1583,25 @@ def InitNimManager(nimmgr, update_slots = []):
 			nim.configMode = tmp
 			if slot.isHotSwitchableMultiType():
 				nim.configModeDVBS = ConfigYesNo()
-				nim.configModeDVBS.addnotifier(boundFunction(tunerConfigChanged, nim), initial_call=False)
+				nim.configModeDVBS.addNotifier(boundFunction(tunerConfigChanged, nim), initial_call=False)
 		if slot.isCompatible("DVB-C"):
 			if slot.isHotSwitchableMultiType():
 				nim.configModeDVBC = ConfigYesNo()
-				nim.configModeDVBC.addnotifier(boundFunction(tunerConfigChanged, nim), initial_call=False)
+				nim.configModeDVBC.addNotifier(boundFunction(tunerConfigChanged, nim), initial_call=False)
 			if not slot.isHotSwitchableMultiType():
 				nim.configMode = ConfigSelection(choices={"enabled": _("enabled"), "nothing": _("disabled")}, default="nothing")
 			createCableConfig(nim, x)
 		if slot.isCompatible("DVB-T"):
 			if slot.isHotSwitchableMultiType():
 				nim.configModeDVBT = ConfigYesNo()
-				nim.configModeDVBT.addnotifier(boundFunction(tunerConfigChanged, nim), initial_call=False)
+				nim.configModeDVBT.addNotifier(boundFunction(tunerConfigChanged, nim), initial_call=False)
 			if not slot.isHotSwitchableMultiType():
 				nim.configMode = ConfigSelection(choices={"enabled": _("enabled"), "nothing": _("disabled")}, default="nothing")
 			createTerrestrialConfig(nim, x)
 		if slot.isCompatible("ATSC"):
 			if slot.isHotSwitchableMultiType():
 				nim.configModeDVBATSC = ConfigYesNo()
-				nim.configModeDVBATSC.addnotifier(boundFunction(tunerConfigChanged, nim), initial_call=False)
+				nim.configModeDVBATSC.addNotifier(boundFunction(tunerConfigChanged, nim), initial_call=False)
 			if not slot.isHotSwitchableMultiType():
 				nim.configMode = ConfigSelection(choices={"enabled": _("enabled"), "nothing": _("disabled")}, default="nothing")
 			createATSCConfig(nim, x)
@@ -1612,6 +1610,8 @@ def InitNimManager(nimmgr, update_slots = []):
 			nim.configMode = ConfigSelection(choices = {"nothing": _("disabled")}, default="nothing")
 			if slot.type is not None:
 				print "[InitNimManager] pls add support for this frontend type!", slot.type
+		tunerConfigChanged(nim)
+
 	nimmgr.sec = SecConfigure(nimmgr)
 
 	empty_slots = 0
@@ -1643,6 +1643,6 @@ def InitNimManager(nimmgr, update_slots = []):
 			nim.multiType = ConfigSelection([(id, slot.getMultiTypeList()[id]) for id in slot.getMultiTypeList().keys()] + [("", _("disabled"))], "0")
 			nim.multiType.addNotifier(boundFunction(tunerTypeChanged, nimmgr, x - empty_slots))
 		if slot.isHotSwitchableMultiType():
-			eDVBResourceManager.getInstance().setFrontendType(nimmgr.nim_slots[fe_id].frontend_id, "DVB-S2X") #for hotswitchable multitype we need to set the frontend type to DVB-S2
+			eDVBResourceManager.getInstance().setFrontendType(nimmgr.nim_slots[x - empty_slots].frontend_id, "DVB-S2X") #for hotswitchable multitype we need to set the frontend type to DVB-S2
 
 nimmanager = NimManager()

@@ -150,8 +150,11 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 				self.list.append(self.configModeDVBS)
 			if self.nim.isMultiType() or self.nim.isHotSwitchableMultiType():
 				self.nimConfig.configMode.choices.choices.pop("nothing", None)
-			self.configMode = getConfigListEntry(self.indent % _("Configuration mode"), self.nimConfig.configMode, _("Select 'FBC SCR' if this tuner will connect to a SCR (Unicable/JESS) device. For all other setups select 'FBC automatic'.") if self.nim.isFBCLink() else _("Configure this tuner using simple or advanced options, or loop it through to another tuner, or copy a configuration from another tuner, or disable it."))
-			self.list.append(self.configMode)
+			if not self.nim.isHotSwitchableMultiType() or self.nimConfig.configModeDVBS.value:
+				self.configMode = getConfigListEntry(self.indent % _("Configuration mode"), self.nimConfig.configMode, _("Select 'FBC SCR' if this tuner will connect to a SCR (Unicable/JESS) device. For all other setups select 'FBC automatic'.") if self.nim.isFBCLink() else _("Configure this tuner using simple or advanced options, or loop it through to another tuner, or copy a configuration from another tuner, or disable it."))
+				self.list.append(self.configMode)
+			else:
+				self.nimConfig.configMode.default = self.nimConfig.configMode.value = "nothing"
 			if self.nimConfig.configMode.value == "simple":			#simple setup
 				self.diseqcModeEntry = getConfigListEntry(self.indent % pgettext("Satellite configuration mode", "Mode"), self.nimConfig.diseqcMode, _("Select how the satellite dish is set up. i.e. fixed dish, single LNB, DiSEqC switch, positioner, etc."))
 				self.list.append(self.diseqcModeEntry)
