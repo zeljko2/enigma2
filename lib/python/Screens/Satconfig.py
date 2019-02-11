@@ -132,7 +132,7 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 		self.forcetoneburst = None
 		self.terrestrialRegionsEntry = None
 		self.cableRegionsEntry = None
-		self.indent = "  %s" if self.nim.isFullMultiType() else "%s"
+		self.indent = "  %s" if self.nim.isHotSwitchableMultiType() else "%s"
 		if not hasattr(self, "terrestrialCountriesEntry"):
 			self.terrestrialCountriesEntry = None
 		if not hasattr(self, "cableCountriesEntry"):
@@ -145,10 +145,12 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 			secondary_multitype = self.nim.multi_type.get(self.nimConfig.multiType.value[-1], None)
 
 		if self.nim.isCompatible("DVB-S"):
-			if self.nim.isFullMultiType():
-				self.configMode = getConfigListEntry(_("Configure DVB-S"), self.nimConfig.configMode, _("Select 'Yes' when you want to configure this tuner for DVB-S"))
-			else:
-				self.configMode = getConfigListEntry(self.indent % _("Configuration mode"), self.nimConfig.configMode, _("Select 'FBC SCR' if this tuner will connect to a SCR (Unicable/JESS) device. For all other setups select 'FBC automatic'.") if self.nim.isFBCLink() else _("Configure this tuner using simple or advanced options, or loop it through to another tuner, or copy a configuration from another tuner, or disable it."))
+			if self.nim.isHotSwitchableMultiType():
+				self.configModeDVBS = getConfigListEntry(_("Configure DVB-S"), self.nimConfig.configModeDVBS, _("Select 'Yes' when you want to configure this tuner for DVB-S"))
+				self.list.append(self.configModeDVBS)
+			if self.nim.isMultiType() or self.nim.isHotSwitchableMultiType():
+				self.nimConfig.configMode.choices.choices.pop("nothing", None)
+			self.configMode = getConfigListEntry(self.indent % _("Configuration mode"), self.nimConfig.configMode, _("Select 'FBC SCR' if this tuner will connect to a SCR (Unicable/JESS) device. For all other setups select 'FBC automatic'.") if self.nim.isFBCLink() else _("Configure this tuner using simple or advanced options, or loop it through to another tuner, or copy a configuration from another tuner, or disable it."))
 			self.list.append(self.configMode)
 			if self.nimConfig.configMode.value == "simple":			#simple setup
 				self.diseqcModeEntry = getConfigListEntry(self.indent % pgettext("Satellite configuration mode", "Mode"), self.nimConfig.diseqcMode, _("Select how the satellite dish is set up. i.e. fixed dish, single LNB, DiSEqC switch, positioner, etc."))
@@ -209,13 +211,13 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 					self.t2mirawmode = getConfigListEntry(self.indent % _("T2MI RAW Mode"), self.nimConfig.t2miRawMode, _("With T2MI RAW mode disabled (default) we can use single T2MI PLP de-encapsulation. With T2MI RAW mode enabled we can use astra-sm to analyze T2MI"))
 					self.list.append(self.t2mirawmode)
 		if self.nim.isCompatible("DVB-C"):
-			if self.nim.isFullMultiType():
+			if self.nim.isHotSwitchableMultiType():
 				self.configModeDVBC = getConfigListEntry(_("Configure DVB-C"), self.nimConfig.configModeDVBC, _("Select 'Yes' when you want to configure this tuner for DVB-C"))
 				self.list.append(self.configModeDVBC)
 			elif not self.nim.isMultiType():
 				self.configMode = getConfigListEntry(self.indent % _("Configuration mode"), self.nimConfig.configMode, _("Select 'enabled' if this tuner has a signal cable connected, otherwise select 'nothing connected'."))
 				self.list.append(self.configMode)
-			if self.nimConfig.configModeDVBC.value if self.nim.isFullMultiType() else self.nimConfig.configMode.value != "nothing":
+			if self.nimConfig.configModeDVBC.value if self.nim.isHotSwitchableMultiType() else self.nimConfig.configMode.value != "nothing":
 				self.list.append(getConfigListEntry(self.indent % _("Network ID"), self.nimConfig.cable.scan_networkid, _("This setting depends on your cable provider and location. If you don't know the correct setting refer to the menu in the official cable receiver, or get it from your cable provider, or seek help via internet forum.")))
 				self.cableScanType=getConfigListEntry(self.indent % _("Used service scan type"), self.nimConfig.cable.scan_type, _("Select 'provider' to scan from the predefined list of cable multiplexes. Select 'bands' to only scan certain parts of the spectrum. Select 'steps' to scan in steps of a particular frequency bandwidth."))
 				self.list.append(self.cableScanType)
@@ -274,13 +276,13 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 						self.list.append(getConfigListEntry(self.indent % (_("Scan additional SR")), self.nimConfig.cable.scan_sr_ext1, _("This field allows you to search an additional symbol rate up to %s.") % ("7320")))
 						self.list.append(getConfigListEntry(self.indent % (_("Scan additional SR")), self.nimConfig.cable.scan_sr_ext2, _("This field allows you to search an additional symbol rate up to %s.") % ("7320")))
 		if self.nim.isCompatible("DVB-T"):
-			if self.nim.isFullMultiType():
+			if self.nim.isHotSwitchableMultiType():
 				self.configModeDVBT = getConfigListEntry(_("Configure DVB-T"), self.nimConfig.configModeDVBT, _("Select 'Yes' when you want to configure this tuner for DVB-T"))
 				self.list.append(self.configModeDVBT)
 			elif not self.nim.isMultiType():
 				self.configMode = getConfigListEntry(self.indent % _("Configuration mode"), self.nimConfig.configMode, _("Select 'enabled' if this tuner has a signal cable connected, otherwise select 'nothing connected'."))
 				self.list.append(self.configMode)
-			if self.nimConfig.configModeDVBT.value if self.nim.isFullMultiType() else self.nimConfig.configMode.value != "nothing":
+			if self.nimConfig.configModeDVBT.value if self.nim.isHotSwitchableMultiType() else self.nimConfig.configMode.value != "nothing":
 				# country/region tier one
 				if self.terrestrialCountriesEntry is None:
 					terrestrialcountrycodelist = nimmanager.getTerrestrialsCountrycodeList()
@@ -306,13 +308,13 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 				self.list.append(self.terrestrialRegionsEntry)
 				self.list.append(getConfigListEntry(self.indent % _("Enable 5V for active antenna"), self.nimConfig.terrestrial_5V, _("Enable this setting if your aerial system needs power")))
 		if self.nim.isCompatible("ATSC"):
-			if self.nim.isFullMultiType():
+			if self.nim.isHotSwitchableMultiType():
 				self.configModeDVBATSC = getConfigListEntry(_("Configure DVB-ATSC"), self.nimConfig.configModeDVBATSC, _("Select 'Yes' when you want to configure this tuner for DVB-ATSC"))
 				self.list.append(self.configModeDVBATSC)
 			elif not self.nim.isMultiType():
 				self.configMode = getConfigListEntry(self.indent % _("Configuration mode"), self.nimConfig.configMode, _("Select 'enabled' if this tuner has a signal cable connected, otherwise select 'nothing connected'."))
 				self.list.append(self.configMode)
-			if self.nimConfig.configModeDVBATSC.value if self.nim.isFullMultiType() else self.nimConfig.configMode.value != "nothing":
+			if self.nimConfig.configModeDVBATSC.value if self.nim.isHotSwitchableMultiType() else self.nimConfig.configMode.value != "nothing":
 				self.list.append(getConfigListEntry(self.indent % _("ATSC provider"), self.nimConfig.atsc, _("Select your ATSC provider.")))
 
 		if self.nimConfig.configMode.value != "nothing" and config.usage.setup_level.index > 1:
@@ -330,7 +332,7 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 			InitNimManager(nimmanager, update_slots)
 			self.nim = nimmanager.nim_slots[self.slotid]
 			self.nimConfig = self.nim.config
-		if self["config"].getCurrent() in (self.configMode, self.configModeDVBC, self.configModeDVBT, self.configModeDVBATSC, self.diseqcModeEntry, self.advancedSatsEntry, self.advancedLnbsEntry, self.advancedDiseqcMode, self.advancedUsalsEntry,\
+		if self["config"].getCurrent() in (self.configMode, self.configModeDVBS, self.configModeDVBC, self.configModeDVBT, self.configModeDVBATSC, self.diseqcModeEntry, self.advancedSatsEntry, self.advancedLnbsEntry, self.advancedDiseqcMode, self.advancedUsalsEntry,\
 			self.advancedLof, self.advancedPowerMeasurement, self.turningSpeed, self.advancedType, self.advancedSCR, self.advancedPosition, self.advancedFormat, self.advancedManufacturer,\
 			self.advancedUnicable, self.advancedConnected, self.toneburst, self.committedDiseqcCommand, self.uncommittedDiseqcCommand, self.singleSatEntry,	self.commandOrder,\
 			self.showAdditionalMotorOptions, self.cableScanType, self.multiType, self.cableConfigScanDetails, self.terrestrialCountriesEntry, self.cableCountriesEntry, \
@@ -845,7 +847,7 @@ class NimSelection(Screen):
 						text = _("Enabled")
 				if x.isMultiType():
 					text = "%s (%s)\n%s" % (_("Switchable tuner types:"), ','.join(x.getMultiTypeList().values()), text)
-				elif  x.isFullMultiType():
+				elif  x.isHotSwitchableMultiType():
 					text = "%s (%s)\n%s" % (_("Multitype tuner"), ','.join(x.getMultiTypeList().values()), text)
 				if not x.isSupported():
 					text = _("Tuner is not supported")
