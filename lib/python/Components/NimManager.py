@@ -1610,7 +1610,8 @@ def InitNimManager(nimmgr, update_slots = []):
 			nim.configMode = ConfigSelection(choices = {"nothing": _("disabled")}, default="nothing")
 			if slot.type is not None:
 				print "[InitNimManager] pls add support for this frontend type!", slot.type
-		tunerConfigChanged(nim)
+		if slot.isHotSwitchableMultiType():
+			tunerConfigChanged(nim)
 
 	nimmgr.sec = SecConfigure(nimmgr)
 
