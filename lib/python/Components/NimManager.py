@@ -520,7 +520,7 @@ class NIM(object):
 					self.multi_type[str(types.index(type))] = type
 
 	def isCompatible(self, what):
-		if self.isHotSwitchableMultiType():
+		if self.isHotSwitchable():
 			return self.canBeCompatible(what)
 		else:
 			return self.isSupported() and what in self.compatible[self.getType()]
@@ -530,7 +530,7 @@ class NIM(object):
 
 	def getType(self):
 		try:
-			if self.isHotSwitchableMultiType():
+			if self.isHotSwitchable():
 				return "DVB-S2X" #return dvb-s2x when we have full multitype as this enables all DVB-S2X features
 			elif self.isMultiType():
 				return self.multi_type.get(self.config.multiType.value, None)
@@ -580,9 +580,9 @@ class NIM(object):
 			open("/proc/stb/frontend/%d/rf_switch" % self.frontend_id, "w").write("external")
 
 	def isMultiType(self):
-		return not self.isHotSwitchableMultiType() and bool(len(self.multi_type))
+		return not self.isHotSwitchable() and bool(len(self.multi_type))
 
-	def isHotSwitchableMultiType(self):
+	def isHotSwitchable(self):
 		all_tuner_capabilities =  set([y for x in [self.compatible[x] for x in self.multi_type.values()] for y in x])
 		return "DVB-S" in all_tuner_capabilities and ("DVB-C" in all_tuner_capabilities or "DVB-T" in all_tuner_capabilities)
 
@@ -622,7 +622,7 @@ class NIM(object):
 		return self.isFBCTuner() and self.slot % 8 and True
 
 	def getFriendlyType(self):
-		return ("%s%s" % (_("Hotswitchable "), " + ".join(self.multi_type.values())) if self.isHotSwitchableMultiType() else self.getType()) or _("empty")
+		return ("%s%s" % (_("Hotswitchable "), " + ".join(self.multi_type.values())) if self.isHotSwitchable() else self.getType()) or _("empty")
 
 	def getFullDescription(self):
 		return self.empty and _("(empty)") or "%s (%s)" % (self.description, self.isSupported() and self.friendly_type or _("not supported"))
@@ -1581,28 +1581,28 @@ def InitNimManager(nimmgr, update_slots = []):
 			tmp.slot_id = x
 			tmp.addNotifier(configModeChanged, initial_call = False)
 			nim.configMode = tmp
-			if slot.isHotSwitchableMultiType():
+			if slot.isHotSwitchable():
 				nim.configModeDVBS = ConfigYesNo()
 				nim.configModeDVBS.addNotifier(boundFunction(tunerConfigChanged, nim), initial_call=False)
 		if slot.isCompatible("DVB-C"):
-			if slot.isHotSwitchableMultiType():
+			if slot.isHotSwitchable():
 				nim.configModeDVBC = ConfigYesNo()
 				nim.configModeDVBC.addNotifier(boundFunction(tunerConfigChanged, nim), initial_call=False)
-			if not slot.isHotSwitchableMultiType():
+			if not slot.isHotSwitchable():
 				nim.configMode = ConfigSelection(choices={"enabled": _("enabled"), "nothing": _("disabled")}, default="nothing")
 			createCableConfig(nim, x)
 		if slot.isCompatible("DVB-T"):
-			if slot.isHotSwitchableMultiType():
+			if slot.isHotSwitchable():
 				nim.configModeDVBT = ConfigYesNo()
 				nim.configModeDVBT.addNotifier(boundFunction(tunerConfigChanged, nim), initial_call=False)
-			if not slot.isHotSwitchableMultiType():
+			if not slot.isHotSwitchable():
 				nim.configMode = ConfigSelection(choices={"enabled": _("enabled"), "nothing": _("disabled")}, default="nothing")
 			createTerrestrialConfig(nim, x)
 		if slot.isCompatible("ATSC"):
-			if slot.isHotSwitchableMultiType():
+			if slot.isHotSwitchable():
 				nim.configModeDVBATSC = ConfigYesNo()
 				nim.configModeDVBATSC.addNotifier(boundFunction(tunerConfigChanged, nim), initial_call=False)
-			if not slot.isHotSwitchableMultiType():
+			if not slot.isHotSwitchable():
 				nim.configMode = ConfigSelection(choices={"enabled": _("enabled"), "nothing": _("disabled")}, default="nothing")
 			createATSCConfig(nim, x)
 		if not hasattr(nim, "configMode"):
@@ -1610,7 +1610,7 @@ def InitNimManager(nimmgr, update_slots = []):
 			nim.configMode = ConfigSelection(choices = {"nothing": _("disabled")}, default="nothing")
 			if slot.type is not None:
 				print "[InitNimManager] pls add support for this frontend type!", slot.type
-		if slot.isHotSwitchableMultiType():
+		if slot.isHotSwitchable():
 			tunerConfigChanged(nim)
 
 	nimmgr.sec = SecConfigure(nimmgr)
@@ -1643,7 +1643,7 @@ def InitNimManager(nimmgr, update_slots = []):
 		if slot.isMultiType() and not hasattr(nim, "multiType"):
 			nim.multiType = ConfigSelection([(id, slot.getMultiTypeList()[id]) for id in slot.getMultiTypeList().keys()] + [("", _("disabled"))], "0")
 			nim.multiType.addNotifier(boundFunction(tunerTypeChanged, nimmgr, x - empty_slots))
-		if slot.isHotSwitchableMultiType():
+		if slot.isHotSwitchable():
 			eDVBResourceManager.getInstance().setFrontendType(nimmgr.nim_slots[x - empty_slots].frontend_id, "DVB-S2X") #for hotswitchable multitype we need to set the frontend type to DVB-S2
 
 nimmanager = NimManager()
