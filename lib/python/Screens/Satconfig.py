@@ -849,9 +849,9 @@ class NimSelection(Screen):
 					elif nimConfig.configMode.value == "enabled":
 						text = _("Enabled")
 				if x.isMultiType():
-					text = "%s (%s)\n%s" % (_("Switchable tuner types: "), ','.join(x.getMultiTypeList().values()), text)
+					text = "%s: (%s)\n%s" % (_("Switchable tuner types"), ','.join(x.getMultiTypeList().values()), text)
 				elif  x.isHotSwitchable():
-					text = "%s (%s)\n%s" % (_("Hotswitchable tuner: "), ','.join(x.getMultiTypeList().values()), text)
+					text = "%s: (%s)\n%s" % (_("Hotswitchable tuner"), ','.join(x.getMultiTypeList().values()), text)
 				if not x.isSupported():
 					text = _("Tuner is not supported")
 
