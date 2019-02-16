@@ -1581,27 +1581,15 @@ def InitNimManager(nimmgr, update_slots = []):
 			tmp.slot_id = x
 			tmp.addNotifier(configModeChanged, initial_call = False)
 			nim.configMode = tmp
-			if slot.isHotSwitchable():
-				nim.configModeDVBS = ConfigYesNo()
-				nim.configModeDVBS.addNotifier(boundFunction(tunerConfigChanged, nim), initial_call=False)
 		if slot.isCompatible("DVB-C"):
-			if slot.isHotSwitchable():
-				nim.configModeDVBC = ConfigYesNo()
-				nim.configModeDVBC.addNotifier(boundFunction(tunerConfigChanged, nim), initial_call=False)
 			if not slot.isHotSwitchable():
 				nim.configMode = ConfigSelection(choices={"enabled": _("enabled"), "nothing": _("disabled")}, default="nothing")
 			createCableConfig(nim, x)
 		if slot.isCompatible("DVB-T"):
-			if slot.isHotSwitchable():
-				nim.configModeDVBT = ConfigYesNo()
-				nim.configModeDVBT.addNotifier(boundFunction(tunerConfigChanged, nim), initial_call=False)
 			if not slot.isHotSwitchable():
 				nim.configMode = ConfigSelection(choices={"enabled": _("enabled"), "nothing": _("disabled")}, default="nothing")
 			createTerrestrialConfig(nim, x)
 		if slot.isCompatible("ATSC"):
-			if slot.isHotSwitchable():
-				nim.configModeDVBATSC = ConfigYesNo()
-				nim.configModeDVBATSC.addNotifier(boundFunction(tunerConfigChanged, nim), initial_call=False)
 			if not slot.isHotSwitchable():
 				nim.configMode = ConfigSelection(choices={"enabled": _("enabled"), "nothing": _("disabled")}, default="nothing")
 			createATSCConfig(nim, x)
@@ -1610,7 +1598,16 @@ def InitNimManager(nimmgr, update_slots = []):
 			nim.configMode = ConfigSelection(choices = {"nothing": _("disabled")}, default="nothing")
 			if slot.type is not None:
 				print "[InitNimManager] pls add support for this frontend type!", slot.type
+
 		if slot.isHotSwitchable():
+			nim.configModeDVBS = ConfigYesNo()
+			nim.configModeDVBS.addNotifier(boundFunction(tunerConfigChanged, nim), initial_call=False)
+			nim.configModeDVBC = ConfigYesNo()
+			nim.configModeDVBC.addNotifier(boundFunction(tunerConfigChanged, nim), initial_call=False)
+			nim.configModeDVBT = ConfigYesNo()
+			nim.configModeDVBT.addNotifier(boundFunction(tunerConfigChanged, nim), initial_call=False)
+			nim.configModeDVBATSC = ConfigYesNo()
+			nim.configModeDVBATSC.addNotifier(boundFunction(tunerConfigChanged, nim), initial_call=False)
 			tunerConfigChanged(nim)
 
 	nimmgr.sec = SecConfigure(nimmgr)
