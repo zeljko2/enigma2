@@ -1494,7 +1494,7 @@ def InitNimManager(nimmgr, update_slots = []):
 			nim.atsc = ConfigSelection(choices = list)
 
 	def tunerTypeChanged(nimmgr, fe_id, configElement, initial=False):
-		if configElement.Value:
+		if configElement.value:
 			eDVBResourceManager.getInstance().setFrontendType(nimmgr.nim_slots[fe_id].frontend_id, nimmgr.nim_slots[fe_id].getType())
 			try:
 				raw_channel = eDVBResourceManager.getInstance().allocateRawChannel(fe_id)
@@ -1552,11 +1552,12 @@ def InitNimManager(nimmgr, update_slots = []):
 			config.Nims[fe_id].configMode.value = "nothing"
 
 	def tunerConfigChanged(nim, configElement=None):
-		if nim.configModeDVBS.value or nim.configModeDVBC.value or nim.configModeDVBT.value or nim.configModeDVBATSC.value:
-			if nim.configMode.value == "nothing":
-				nim.configMode.value = "simple"
-		else:
-			nim.configMode.value = nim.configMode.default = "nothing"
+		if slot.isHotSwitchable():
+			if nim.configModeDVBS.value or nim.configModeDVBC.value or nim.configModeDVBT.value or nim.configModeDVBATSC.value:
+				if nim.configMode.value == "nothing":
+					nim.configMode.value = "simple"
+			else:
+				nim.configMode.value = nim.configMode.default = "nothing"
 
 	empty_slots = 0
 	for slot in nimmgr.nim_slots:
@@ -1575,7 +1576,7 @@ def InitNimManager(nimmgr, update_slots = []):
 				config_mode_choices.update({"equal": _("equal to")})
 				config_mode_choices.update({"satposdepends": _("second cable of motorized LNB")})
 			if len(nimmgr.canConnectTo(x)) > 0:
-				config_mode_choices.update({"loopthrough": ("loopthrough to")})
+				config_mode_choices.update({"loopthrough": _("loopthrough to")})
 			nim.advanced = ConfigNothing()
 			tmp = ConfigSelection(config_mode_choices, slot.isFBCLink() and "nothing" or "simple")
 			tmp.slot_id = x
@@ -1599,16 +1600,15 @@ def InitNimManager(nimmgr, update_slots = []):
 			if slot.type is not None:
 				print "[InitNimManager] pls add support for this frontend type!", slot.type
 
-		if slot.isHotSwitchable():
-			nim.configModeDVBS = ConfigYesNo()
-			nim.configModeDVBS.addNotifier(boundFunction(tunerConfigChanged, nim), initial_call=False)
-			nim.configModeDVBC = ConfigYesNo()
-			nim.configModeDVBC.addNotifier(boundFunction(tunerConfigChanged, nim), initial_call=False)
-			nim.configModeDVBT = ConfigYesNo()
-			nim.configModeDVBT.addNotifier(boundFunction(tunerConfigChanged, nim), initial_call=False)
-			nim.configModeDVBATSC = ConfigYesNo()
-			nim.configModeDVBATSC.addNotifier(boundFunction(tunerConfigChanged, nim), initial_call=False)
-			tunerConfigChanged(nim)
+		nim.configModeDVBS = ConfigYesNo()
+		nim.configModeDVBS.addNotifier(boundFunction(tunerConfigChanged, nim), initial_call=False)
+		nim.configModeDVBC = ConfigYesNo()
+		nim.configModeDVBC.addNotifier(boundFunction(tunerConfigChanged, nim), initial_call=False)
+		nim.configModeDVBT = ConfigYesNo()
+		nim.configModeDVBT.addNotifier(boundFunction(tunerConfigChanged, nim), initial_call=False)
+		nim.configModeDVBATSC = ConfigYesNo()
+		nim.configModeDVBATSC.addNotifier(boundFunction(tunerConfigChanged, nim), initial_call=False)
+		tunerConfigChanged(nim)
 
 	nimmgr.sec = SecConfigure(nimmgr)
 
@@ -1620,23 +1620,9 @@ def InitNimManager(nimmgr, update_slots = []):
 			continue
 
 		nim = config.Nims[x]
-		empty = True
 
-		if slot.canBeCompatible("DVB-S"):
-			createSatConfig(nim, x, empty_slots)
-			empty = False
-		if slot.canBeCompatible("DVB-C"):
-			createCableConfig(nim, x)
-			empty = False
-		if slot.canBeCompatible("DVB-T"):
-			createTerrestrialConfig(nim, x)
-			empty = False
-		if slot.canBeCompatible("ATSC"):
-			createATSCConfig(nim, x)
-			empty = False
-		if empty:
+		if not(slot.canBeCompatible("DVB-S") or slot.canBeCompatible("DVB-C") or slot.canBeCompatible("DVB-T") or slot.canBeCompatible("ATSC")):
 			empty_slots += 1
-
 		if slot.isMultiType() and not hasattr(nim, "multiType"):
 			nim.multiType = ConfigSelection([(id, slot.getMultiTypeList()[id]) for id in slot.getMultiTypeList().keys()] + [("", _("disabled"))], "0")
 			nim.multiType.addNotifier(boundFunction(tunerTypeChanged, nimmgr, x - empty_slots))
