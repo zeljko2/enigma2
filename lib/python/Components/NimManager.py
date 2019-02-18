@@ -526,7 +526,10 @@ class NIM(object):
 			return self.isSupported() and what in self.compatible[self.getType()]
 
 	def canBeCompatible(self, what):
-		return self.isSupported() and bool([x for x in self.multi_type.values() if what in self.compatible[x]])
+		if self.multi_type:
+			return self.isSupported() and bool([x for x in self.multi_type.values() if what in self.compatible[x]])
+		else:
+			return self.isSupported() and self.isCompatible(what)
 
 	def getType(self):
 		try:
