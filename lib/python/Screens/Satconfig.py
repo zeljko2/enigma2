@@ -142,7 +142,6 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 			multiType = self.nimConfig.multiType
 			self.multiType = getConfigListEntry(_("Tuner type"), multiType, _("This is a multitype tuner. Available options depend on the hardware."))
 			self.list.append(self.multiType)
-			secondary_multitype = self.nim.multi_type.get(self.nimConfig.multiType.value[-1], None)
 
 		if self.nim.isCompatible("DVB-S"):
 			self.configMode = getConfigListEntry(self.indent % _("Configuration mode"), self.nimConfig.configMode, _("Select 'FBC SCR' if this tuner will connect to a SCR (Unicable/JESS) device. For all other setups select 'FBC automatic'.") if self.nim.isFBCLink() else _("Configure this tuner using simple or advanced options, or loop it through to another tuner, or copy a configuration from another tuner, or disable it."))
